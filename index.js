@@ -145,6 +145,27 @@ projectItems.forEach(item => {
     item.addEventListener('mouseenter', () => {
         item.style.transition = 'all 0.3s ease';
     });
+    
+    // Mobile tap to show overlay
+    item.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            // Check if we clicked the 'View Project' button
+            if (e.target.classList.contains('btn')) {
+                return; // Let the button click proceed
+            }
+            
+            // If it's the image link, prevent default to show overlay first
+            if (item.contains(e.target) && !item.classList.contains('active')) {
+                e.preventDefault();
+            }
+
+            // Toggle active class for other items
+            projectItems.forEach(otherItem => {
+                if (otherItem !== item) otherItem.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        }
+    });
 });
 
 // Initialize all animations on page load
