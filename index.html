@@ -6,7 +6,7 @@
     <title>Asit-portfolio</title>
   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -14,6 +14,8 @@
     <div class="cursor-follower"></div>
 
     <header class="fixed-header">
+        <div class="header-bg"></div>
+        <div class="scanner"></div>
         <div class="container">
             <div class="logo" data-text="PORTFOLIO">P-folio</div>
             <nav>
@@ -26,12 +28,12 @@
                     <li><a href="#experience">Experience</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
-                <div class="hamburger">
-                    <div class="line"></div>
-                    <div class="line"></div>
-                    <div class="line"></div>
-                </div>
             </nav>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
         </div>
     </header>
 
@@ -48,7 +50,7 @@
                     </div>
                     <div class="image-wrapper">
                         <div class="blob"></div>
-                        <img src="me22.jpg" alt="Profile" class="profile-img">
+                        <img src="Screenshot 2026-03-31 224553.png" alt="Profile" class="profile-img">
                     </div>
                 </div>
             </div>
@@ -587,6 +589,13 @@
             </div>
         </div>
     </footer>
+
+    <div class="theme-switcher">
+        <button class="theme-btn red" onclick="setTheme('red')" title="Red Mood"></button>
+        <button class="theme-btn green" onclick="setTheme('green')" title="Green Mood"></button>
+        <button class="theme-btn blue" onclick="setTheme('blue')" title="Blue Mood"></button>
+        <button class="theme-btn white" onclick="setTheme('white')" title="White Mood"></button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
     <script src="index.js"></script>

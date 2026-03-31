@@ -2,6 +2,32 @@
 const cursor = document.querySelector('.cursor');
 const follower = document.querySelector('.cursor-follower');
 
+// Theme Switcher Logic
+function setTheme(themeName) {
+    // Remove all theme classes
+    document.body.classList.remove('theme-red', 'theme-green', 'theme-blue', 'theme-white');
+    
+    // Add new theme class
+    if (themeName !== 'red') {
+        document.body.classList.add(`theme-${themeName}`);
+    }
+    
+    // Update active button state
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.classList.contains(themeName)) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Save to localStorage
+    localStorage.setItem('portfolio-theme', themeName);
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem('portfolio-theme') || 'red';
+setTheme(savedTheme);
+
 document.addEventListener('mousemove', (e) => {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
@@ -44,25 +70,18 @@ const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-links');
 
 hamburger.addEventListener('click', () => {
-    navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
-    if (window.innerWidth <= 1000) {
-        navMenu.style.flexDirection = 'column';
-        navMenu.style.position = 'absolute';
-        navMenu.style.top = '80px';
-        navMenu.style.right = '20px';
-        navMenu.style.background = '#0c0c1a';
-        navMenu.style.padding = '30px';
-        navMenu.style.borderRadius = '10px';
-        navMenu.style.border = '1px solid #f15a29';
+    navMenu.classList.toggle('show');
+    if (window.innerWidth <= 768) {
+        navMenu.style.background = 'var(--bg-dark)';
+        navMenu.style.border = '2px solid var(--primary-color)';
+        navMenu.style.boxShadow = '0 0 20px var(--primary-glow)';
     }
 });
 
 // Close mobile menu when clicking a link
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
-        if (window.innerWidth <= 1000) {
-            navMenu.style.display = 'none';
-        }
+        navMenu.classList.remove('show');
     });
 });
 
@@ -125,9 +144,18 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Add parallax effect to home section
+// Add parallax effect and header shrink to home section
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
+    const header = document.querySelector('.fixed-header');
+    
+    // Header shrink effect
+    if (scrolled > 50) {
+        header.classList.add('shrink');
+    } else {
+        header.classList.remove('shrink');
+    }
+
     const homeSection = document.getElementById('home');
     if (homeSection) {
         const blob = homeSection.querySelector('.blob');
@@ -144,6 +172,27 @@ const projectItems = document.querySelectorAll('.project-item');
 projectItems.forEach(item => {
     item.addEventListener('mouseenter', () => {
         item.style.transition = 'all 0.3s ease';
+    });
+    
+    // Mobile tap to show overlay
+    item.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            // Check if we clicked the 'View Project' button
+            if (e.target.classList.contains('btn')) {
+                return; // Let the button click proceed
+            }
+            
+            // If it's the image link, prevent default to show overlay first
+            if (item.contains(e.target) && !item.classList.contains('active')) {
+                e.preventDefault();
+            }
+
+            // Toggle active class for other items
+            projectItems.forEach(otherItem => {
+                if (otherItem !== item) otherItem.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        }
     });
 });
 
