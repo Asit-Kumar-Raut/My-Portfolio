@@ -1,3 +1,34 @@
+// Vanta Background
+let vantaEffect = null;
+
+function initVanta(theme = 'red') {
+    // Keep background color dynamic for White theme, but fix globe colors
+    const backgroundColor = theme === 'white' ? 0xffffff : 0x0;
+    const globeColor = 0x00d2ff;
+    const globeColor2 = 0xffffff;
+
+    if (vantaEffect) vantaEffect.destroy();
+
+    try {
+        vantaEffect = VANTA.GLOBE({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: globeColor,
+            color2: globeColor2,
+            backgroundColor: backgroundColor,
+            size: 1.20
+        });
+    } catch (err) {
+        console.error("Vanta initialization failed:", err);
+    }
+}
+
 // Custom Cursor
 const cursor = document.querySelector('.cursor');
 const follower = document.querySelector('.cursor-follower');
@@ -22,11 +53,19 @@ function setTheme(themeName) {
 
     // Save to localStorage
     localStorage.setItem('portfolio-theme', themeName);
+
+    // Update Vanta
+    if (typeof VANTA !== 'undefined') {
+        initVanta(themeName);
+    }
 }
 
 // Load saved theme
 const savedTheme = localStorage.getItem('portfolio-theme') || 'red';
-setTheme(savedTheme);
+// Initialize theme and Vanta after a small delay to ensure DOM is ready
+setTimeout(() => {
+    setTheme(savedTheme);
+}, 100);
 
 document.addEventListener('mousemove', (e) => {
     cursor.style.left = e.clientX + 'px';
@@ -200,6 +239,11 @@ projectItems.forEach(item => {
 window.addEventListener('load', () => {
     // Add active class to home section
     document.getElementById('home').classList.add('active');
+    
+    // Initialize Vanta if not already done
+    if (!vantaEffect && typeof VANTA !== 'undefined') {
+        initVanta(localStorage.getItem('portfolio-theme') || 'red');
+    }
     
     // Animate progress bars
     const progressBars = document.querySelectorAll('.progress');
