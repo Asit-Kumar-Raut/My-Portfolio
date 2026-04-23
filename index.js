@@ -151,22 +151,48 @@ sections.forEach(section => {
 });
 
 // Contact Form Submission
+// Check for Auth Token on load
+let userToken = localStorage.getItem('userToken');
+let userName = localStorage.getItem('userName');
+
+if (userToken) {
+    document.body.classList.add('user-logged-in');
+    document.getElementById('login-btn').innerText = `Logout (${userName})`;
+}
+
+// Contact Form Submission
 const contactForm = document.getElementById('contact-form');
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Get form values
+    if (!userToken) {
+        alert('Please login first to send a message.');
+        openAuthModal();
+        return;
+    }
+
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const subject = document.getElementById('subject').value;
     const message = document.getElementById('message').value;
     
-    // Here you would typically send the form data to a server
-    console.log('Form submitted:', { name, email, subject, message });
-    
-    // Show success message
-    alert('Thank you for your message! I will get back to you soon.');
-    contactForm.reset();
+    try {
+        const response = await fetch('/api/auth/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, subject, message, token: userToken })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.msg);
+            contactForm.reset();
+        } else {
+            alert(data.msg);
+        }
+    } catch (err) {
+        alert('Error sending message. Please try again.');
+    }
 });
 
 // Smooth scrolling for navigation links
@@ -260,12 +286,107 @@ window.addEventListener('load', () => {
             img.addEventListener('load', () => {
                 img.classList.add('loaded');
             });
-            // Handle error case too - maybe still show if it fails to load? 
-            // Better to show an empty box than an invisible one if needed, 
-            // but for now let's just make sure valid ones show.
             img.addEventListener('error', () => {
                 img.classList.add('loaded'); 
             });
         }
     });
+});
+
+// AUTH FUNCTIONS
+function openAuthModal() {
+    if (userToken) {
+        // Logout if already logged in
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userName');
+        window.location.reload();
+        return;
+    }
+    document.getElementById('auth-modal').classList.add('show');
+}
+
+function closeAuthModal() {
+    document.getElementById('auth-modal').classList.remove('show');
+}
+
+function toggleAuth(type) {
+    document.getElementById('login-box').style.display = type === 'login' ? 'block' : 'none';
+    document.getElementById('signup-box').style.display = type === 'signup' ? 'block' : 'none';
+    document.getElementById('otp-box').style.display = 'none';
+}
+
+// Signup Logic
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('signup-name').value;
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+
+    try {
+        const res = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.msg);
+            document.getElementById('otp-email').value = email;
+            document.getElementById('signup-box').style.display = 'none';
+            document.getElementById('otp-box').style.display = 'block';
+        } else {
+            alert(data.msg);
+        }
+    } catch (err) {
+        alert('Server Error');
+    }
+});
+
+// OTP Verification Logic
+document.getElementById('otp-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('otp-email').value;
+    const otp = document.getElementById('otp-input').value;
+
+    try {
+        const res = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.msg);
+            toggleAuth('login');
+        } else {
+            alert(data.msg);
+        }
+    } catch (err) {
+        alert('Server Error');
+    }
+});
+
+// Login Logic
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem('userToken', data.token);
+            localStorage.setItem('userName', data.name);
+            window.location.reload();
+        } else {
+            alert(data.msg);
+        }
+    } catch (err) {
+        alert('Server Error');
+    }
 });
